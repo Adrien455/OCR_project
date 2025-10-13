@@ -6,6 +6,7 @@
 
 // headers
 #include "loader/loader.h"
+#include "pre_process/pre_process.h"
 
 int main(int argc, char *argv[]) {
 

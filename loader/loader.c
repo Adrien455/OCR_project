@@ -4,9 +4,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "loader.h"
+#include "../pre_process/pre_process.h"
 
-void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **texture, char *file) {
-	
+void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **texture, char *file)
+{	
 	SDL_Init(SDL_INIT_VIDEO);
 
 	*window = SDL_CreateWindow("Loader", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
@@ -43,6 +44,10 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
                 {
                         errx(EXIT_FAILURE, "%s", SDL_GetError());
                 }
+		
+		increaseContrast(converted);		// increase contrast (can take neg values btw)
+		to_gray_scale(converted);		// convert to grayscale
+		binarize(converted);			// binarize with a fixed treshold (for now)
 
 		SDL_Texture *input = SDL_CreateTextureFromSurface(*renderer, converted);
 		SDL_FreeSurface(converted);

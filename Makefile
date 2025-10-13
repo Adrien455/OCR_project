@@ -1,18 +1,18 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra `sdl2-config --cflags`
+CFLAGS = -Wall -Wextra
 
-LDFLAGS = `sdl2-config --libs` -lSDL2_image
+LDFLAGS = -lSDL2 -lSDL2_image -lm
 
 TARGET = main
 
 SRCS = main.c $(shell find . -mindepth 1 -name "*.c" ! -name "main.c")
 
-OBJS = $(SRCS:.c=.o)
+HEADERS = $(shell find . -mindepth 1 -name "*.h")
 
 all: $(TARGET)
 
-$(TARGET):
+$(TARGET): $(SRCS) $(HEADERS)
 	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) $(LDFLAGS)
 
 clean:
