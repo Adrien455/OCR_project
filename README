@@ -1,0 +1,48 @@
+# OCR_PROJECT
+
+> The main goal of our application is to solve crosswords
+
+# Structure
+
+OCR_Project/
+│
+├─ main.c
+├─ loader/
+│ ├─ loader.c
+│ └─ loader.h
+├─ pre_process/
+│ ├─ pre_process.c
+│ └─ pre_process.h
+├─ Makefile
+└─ .gitignore
+
+# Dependencies
+
+- SDL2
+- SDL2_Image
+
+# Compile
+
+> in parent folder run 'make main'
+
+# Running
+
+> in parent folder run './main ~/my_image'
+
+# Collaborators
+
+Adrien Meyssonnier
+Laura Picchetti
+Sofiane-Youssef El Batti
+
+# Code
+
+> loader.c component allows the image to be laoded in an SDL application. Extensions handled : .bmp, .png, .jpg
+
+> pre_process.c adjusts the brightness, then grayscales the image and binarizes it (makes it black and white). This step is very important as it makes the
+  character recognition easier (it is mandatory for bad quality images)
+
+> main.c runs everything
+
+
+

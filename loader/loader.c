@@ -47,6 +47,7 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
 		
 		increaseContrast(converted);		// increase contrast (can take neg values btw)
 		to_gray_scale(converted);		// convert to grayscale
+		denoise(converted);
 		binarize(converted);			// binarize with a fixed treshold (for now)
 
 		SDL_Texture *input = SDL_CreateTextureFromSurface(*renderer, converted);
