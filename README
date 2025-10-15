@@ -20,6 +20,7 @@ OCR_Project/
 
 - SDL2
 - SDL2_Image
+- SLD2_gfx
 
 # Compile
 
@@ -39,7 +40,7 @@ Sofiane-Youssef El Batti
 
 > loader.c component allows the image to be laoded in an SDL application. Extensions handled : .bmp, .png, .jpg
 
-> pre_process.c adjusts the brightness, then grayscales the image and binarizes it (makes it black and white). This step is very important as it makes the
+> pre_process.c adjusts the brightness, grayscales, denoises, binarizes and rotates the image (makes it black and white). This step is very important as it makes the
   character recognition easier (it is mandatory for bad quality images)
 
 > main.c runs everything

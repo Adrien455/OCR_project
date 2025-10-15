@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include "loader.h"
 #include "../pre_process/pre_process.h"
+#include "../rotate/rotate.h"
 
 void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **texture, char *file)
 {	
@@ -16,9 +17,10 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
 	
 	*texture = SDL_CreateTexture(*renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 800, 600);
 
-	if(!window || !renderer || !texture) {
+	if(!window || !renderer || !texture)
+	{
 
-          errx(EXIT_FAILURE, "%s", SDL_GetError());
+        errx(EXIT_FAILURE, "%s", SDL_GetError());
   	}
 
 	if(file != NULL) 
@@ -27,48 +29,48 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
 		if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) 
 		{
 
-                	errx(EXIT_FAILURE, "Failed to init image: %s", IMG_GetError());
-        	}
+            errx(EXIT_FAILURE, "Failed to init image: %s", IMG_GetError());
+        }
 
 		SDL_Surface *surface = IMG_Load(file);
 
 		if(!surface) 
 		{
-          		errx(EXIT_FAILURE, "Failed to load image: %s.\nPlease make sure the file exists and has a valid image extension.", SDL_GetError());
-        	}
+          	errx(EXIT_FAILURE, "Failed to load image: %s.\nPlease make sure the file exists and has a valid image extension.", SDL_GetError());
+        }
 
 		SDL_Surface *converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
 		SDL_FreeSurface(surface);
 
 		if(!converted)
-                {
-                        errx(EXIT_FAILURE, "%s", SDL_GetError());
-                }
+        {
+            errx(EXIT_FAILURE, "%s", SDL_GetError());
+        }
 		
-		increaseContrast(converted);		// increase contrast (can take neg values btw)
-		to_gray_scale(converted);		// convert to grayscale
-		denoise(converted);
-		binarize(converted);			// binarize with a fixed treshold (for now)
+		increaseContrast(converted);				// increase contrast (can take neg values btw)
+		to_gray_scale(converted);					// convert to grayscale
+		denoise(converted);							// denoise
+		binarize(converted);						// binarize with a fixed treshold (for now)
+		converted = rotate(converted);				// rotate
 
 		SDL_Texture *input = SDL_CreateTextureFromSurface(*renderer, converted);
 		SDL_FreeSurface(converted);
 
 		if(!input)
-                {
+        {
 			errx(EXIT_FAILURE, "%s", SDL_GetError());
 		}
 
 		*texture = input;
 		
-                SDL_RenderCopy(*renderer, *texture, NULL, NULL);
-
-                SDL_RenderPresent(*renderer);	
+        SDL_RenderCopy(*renderer, *texture, NULL, NULL);
+		SDL_RenderPresent(*renderer);	
 	}
 
 }
 
-void terminate(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture) {
-
+void terminate(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture) 
+{
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyTexture(texture);
@@ -79,22 +81,20 @@ void save_bmp(SDL_Renderer *renderer)
 {
         SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, 800, 600, 32, SDL_PIXELFORMAT_RGBA8888);
 
-        if(!surface) {
-
-          errx(EXIT_FAILURE, "%s", SDL_GetError());
+        if(!surface) 
+		{
+          	errx(EXIT_FAILURE, "%s", SDL_GetError());
         }
 
         int i = SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_RGBA8888, surface->pixels, surface->pitch);
 
         if(i != 0)
         {
-                errx(EXIT_FAILURE, "%s", SDL_GetError());
+            errx(EXIT_FAILURE, "%s", SDL_GetError());
         }
 
         SDL_SaveBMP(surface, "output.bmp");
         SDL_FreeSurface(surface);
-
-
 }
 
 int event_handler() {
@@ -106,7 +106,7 @@ int event_handler() {
 		switch(event.type)
 		{
 			case SDL_QUIT:
-				return 0;
+			return 0;
 		}
 	}
 

@@ -3,10 +3,12 @@
 #include <err.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL2_rotozoom.h>
 
 // headers
 #include "loader/loader.h"
 #include "pre_process/pre_process.h"
+#include "rotate/rotate.h"
 
 int main(int argc, char *argv[]) {
 

@@ -2,7 +2,7 @@ CC = gcc
 
 CFLAGS = -Wall -Wextra
 
-LDFLAGS = -lSDL2 -lSDL2_image -lm
+LDFLAGS = -lSDL2 -lSDL2_image -lm -lSDL2_gfx
 
 TARGET = main
 

@@ -5,27 +5,11 @@
 #include <SDL2/SDL_image.h>
 #include "pre_process.h"
 
-float averageBrightness(SDL_Surface *surface)
-{
-	Uint8 r, g, b;
-	Uint32* pixels = (Uint32*)surface->pixels;
-	int count = surface->w * surface->h;
-	long sum = 0;
-
-	for (int i = 0; i < count; i++) {
-        	SDL_GetRGB(pixels[i], surface->format, &r, &g, &b);
-        	Uint8 gray = (Uint8)(0.299*r + 0.587*g + 0.114*b);
-        	sum += gray;
-	}
-
-	return (float)sum / count;
-}
-
 float contrastFactor(float averageBrightness)
 {
 	float factor = 1.5f;
 
-	if (averageBrightness < 100) factor = 1.8f;		// dark image
+	if (averageBrightness < 100) factor = 1.8f;		    // dark image
 	else if (averageBrightness > 180) factor = 1.2f;	// bright image
 
 	return factor;
@@ -40,8 +24,8 @@ Uint8 computeAverageGray(SDL_Surface *surface)
 
 	for (int i = 0; i < count; i++) 
 	{
-        	SDL_GetRGB(pixels[i], surface->format, &r, &g, &b);
-        	Uint8 gray = (Uint8)(0.299*r + 0.587*g + 0.114*b);
+        SDL_GetRGB(pixels[i], surface->format, &r, &g, &b);
+        Uint8 gray = (Uint8)(0.299*r + 0.587*g + 0.114*b);
 		sum += gray;
 	}
 
@@ -80,7 +64,7 @@ void binarize(SDL_Surface *surface)
 
 void increaseContrast(SDL_Surface *surface)
 {
-	float factor = contrastFactor(averageBrightness(surface));
+	float factor = contrastFactor(computeAverageGray(surface));
 
         Uint8 r, g, b;
         Uint32* pixels = (Uint32*)surface->pixels;
@@ -127,7 +111,8 @@ void denoise(SDL_Surface* surface)
              {
                 for (int n = m+1; n < 9; n++) 
                 {
-                    if (gray[n] < gray[m]) {
+                    if (gray[n] < gray[m]) 
+                    {
                         Uint8 tmp = gray[m];
                         gray[m] = gray[n];
                         gray[n] = tmp;
