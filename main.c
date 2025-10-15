@@ -3,7 +3,6 @@
 #include <err.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL2_rotozoom.h>
 
 // headers
 #include "loader/loader.h"
