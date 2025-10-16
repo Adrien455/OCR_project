@@ -45,6 +45,7 @@ OCR_Project/
 # Running
 
 > in parent folder run './main ~/my_image'
+> example : './main Tests/test1.png'
 
 # Output
 
