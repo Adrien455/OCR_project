@@ -1,3 +1,9 @@
 *.exe
 *.vscode
 main
+datasets/test1/*
+datasets/test2/*
+datasets/test3/*
+datasets/test4/*
+datasets/test5/*
+datasets/test6/*
