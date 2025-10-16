@@ -1,11 +1,15 @@
+// libraries
 #include <stdlib.h>
 #include <err.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+
+// headers
 #include "loader.h"
 #include "../pre_process/pre_process.h"
 #include "../rotate/rotate.h"
+#include "../segmentation/segmentation.h"
 
 void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **texture, char *file)
 {	
@@ -46,12 +50,20 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
         {
             errx(EXIT_FAILURE, "%s", SDL_GetError());
         }
+
+		// Pre-process + segment + save letters
+		// for now these steps are part of the loader, but they should be moved to main.c later and be manually done from there
+		// (so that the user can choose when to do it, and could do his own rotation)
 		
 		increaseContrast(converted);				// increase contrast (can take neg values btw)
 		to_gray_scale(converted);					// convert to grayscale
 		denoise(converted);							// denoise
 		binarize(converted);						// binarize with a fixed treshold (for now)
 		converted = rotate(converted);				// rotate
+
+		SDL_Surface *copy = SDL_ConvertSurfaceFormat(converted, SDL_PIXELFORMAT_RGBA8888, 0);
+		save_letters(copy, file);				// segment and save letters (take a copy to not change black pixels to red)
+		SDL_FreeSurface(copy);
 
 		SDL_Texture *input = SDL_CreateTextureFromSurface(*renderer, converted);
 		SDL_FreeSurface(converted);
@@ -95,20 +107,4 @@ void save_bmp(SDL_Renderer *renderer)
 
         SDL_SaveBMP(surface, "output.bmp");
         SDL_FreeSurface(surface);
-}
-
-int event_handler() {
-
-	SDL_Event event;
-
-	while(SDL_PollEvent(&event))
-	{
-		switch(event.type)
-		{
-			case SDL_QUIT:
-			return 0;
-		}
-	}
-
-	return 1;
 }

@@ -6,44 +6,88 @@
 
 OCR_Project/
 │
-├─ main.c
-├─ loader/
-│ ├─ loader.c
-│ └─ loader.h
-├─ pre_process/
-│ ├─ pre_process.c
-│ └─ pre_process.h
+├─ src/
+│ ├─ main.c
+│ ├─ loader/
+│ │ ├─ loader.c
+│ │ └─ loader.h
+│ ├─ pre_process/
+│ │ ├─ pre_process.c
+│ │ └─ pre_process.h
+│ ├─ rotate/
+│ │ ├─ rotate.c
+│ │ └─ rotate.h
+│ ├─ segmentation/
+│ │ ├─ segmentation.c
+│ │ └─ segmentation.h
+│ └─ event_handler/
+│   ├─ event_handler.c
+│   └─ event_handler.h
+├─ datasets/
+│ └─ (to store test segmented letters)
+├─ Tests/
+│ └─ (to store test images)
 ├─ Makefile
+├─ README
+├─ AUTHORS
 └─ .gitignore
 
 # Dependencies
 
 - SDL2
 - SDL2_Image
-- SLD2_gfx
+- c standard libraries
 
-# Compile
+# Compile / Recompile
 
-> in parent folder run 'make main'
+> in parent folder run 'make'
 
 # Running
 
 > in parent folder run './main ~/my_image'
+
+# Output
+
+> segmented letters are saved in datasets/test_image/ folder
+
+# Clean
+
+> in parent folder run 'make clean'
+
+# Code
+
+> loader.c allows the image to be loaded in an SDL application.
+> Extensions handled : .bmp, .png, .jpg
+
+> pre_process.c adjusts the brightness, grayscales, denoises, binarizes.
+> This step is very important as it makes the character recognition easier.
+
+> rotate.c detects the angle of the text and rotates it to be horizontal.
+
+> segmentation.c detects the letters and saves them in datasets/ folder.
+
+> event_handler.c handles the events (keyboard, mouse, window).
+
+> main.c runs everything.
+
+# Work in progress
+
+> allow the user to see the steps of the pre-processing in the SDL2 window.
+
+> denoise function handles crumpled paper not very well (run './main Tests/test4.png').
+
+> allow the user to rotate the image manually in the SDL2 window (the rotation is automatic).
+
+> fix the segmentation, it is not perfect yet (small i not detected as an example, check datasets/test3). 
+> Separate letters from grid and letters from words.
+> This can be done by detecting grid coordinates and check if the letter is inside or not.
+
+> implement character recognition with a neural network.
+
+> implement the solver for crosswords.
 
 # Collaborators
 
 Adrien Meyssonnier
 Laura Picchetti
 Sofiane-Youssef El Batti
-
-# Code
-
-> loader.c component allows the image to be laoded in an SDL application. Extensions handled : .bmp, .png, .jpg
-
-> pre_process.c adjusts the brightness, grayscales, denoises, binarizes and rotates the image (makes it black and white). This step is very important as it makes the
-  character recognition easier (it is mandatory for bad quality images)
-
-> main.c runs everything
-
-
-

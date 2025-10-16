@@ -8,6 +8,8 @@
 #include "loader/loader.h"
 #include "pre_process/pre_process.h"
 #include "rotate/rotate.h"
+#include "segmentation/segmentation.h"
+#include "event_handler/event_handler.h"
 
 int main(int argc, char *argv[]) {
 

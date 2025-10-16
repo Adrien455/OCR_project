@@ -2,13 +2,13 @@ CC = gcc
 
 CFLAGS = -Wall -Wextra
 
-LDFLAGS = -lSDL2 -lSDL2_image -lm -lSDL2_gfx
+LDFLAGS = -lSDL2 -lSDL2_image -lm
 
 TARGET = main
 
-SRCS = main.c $(shell find . -mindepth 1 -name "*.c" ! -name "main.c")
+SRCS = $(shell find src -name "*.c")
 
-HEADERS = $(shell find . -mindepth 1 -name "*.h")
+HEADERS = $(shell find src -name "*.h")
 
 all: $(TARGET)
 
@@ -16,4 +16,4 @@ $(TARGET): $(SRCS) $(HEADERS)
 	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) $(LDFLAGS)
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(TARGET)

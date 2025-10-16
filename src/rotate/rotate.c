@@ -2,7 +2,6 @@
 #include <err.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include "rotate.h"
 
 SDL_Surface *rotozoomSurface(SDL_Surface* src, double angle_deg, double zoom)
@@ -127,7 +126,6 @@ double find_skew_angle(SDL_Surface* surface)
 SDL_Surface* rotate(SDL_Surface* surface) 
 {
     double angle = find_skew_angle(surface);
-    printf("%f\n", angle);
 
     // Skip rotation if angle is tiny
     if (fabs(angle) < 0.2) 

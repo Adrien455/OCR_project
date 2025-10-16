@@ -2,7 +2,6 @@
 #include <err.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include "pre_process.h"
 
 float contrastFactor(float averageBrightness)
