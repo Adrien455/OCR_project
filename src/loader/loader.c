@@ -54,14 +54,17 @@ void initialize(SDL_Window **window, SDL_Renderer **renderer, SDL_Texture **text
 		// Pre-process + segment + save letters
 		// for now these steps are part of the loader, but they should be moved to main.c later and be manually done from there
 		// (so that the user can choose when to do it, and could do his own rotation)
-		
+
+		int av_gray = 0;
+
 		increaseContrast(converted);				// increase contrast (can take neg values btw)
-		to_gray_scale(converted);					// convert to grayscale
+		to_gray_scale(converted, &av_gray);			// convert to grayscale
 		denoise(converted);							// denoise
-		binarize(converted);						// binarize with a fixed treshold (for now)
+		binarize(converted, av_gray);				// binarize with a fixed treshold (for now)
 		converted = rotate(converted);				// rotate
 
 		SDL_Surface *copy = SDL_ConvertSurfaceFormat(converted, SDL_PIXELFORMAT_RGBA8888, 0);
+
 		save_letters(copy, file);				// segment and save letters (take a copy to not change black pixels to red)
 		SDL_FreeSurface(copy);
 
