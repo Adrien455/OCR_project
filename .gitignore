@@ -1,4 +1,7 @@
 *.exe
 *.vscode
 main
+
+
 datasets/*
+!datasets/**/.gitkeep
