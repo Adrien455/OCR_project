@@ -3,7 +3,6 @@
 
 void to_gray_scale(SDL_Surface *surface, int *av_gray);
 void binarize(SDL_Surface *surface, int av_gray);
-void increaseContrast(SDL_Surface *surface);
 void denoise(SDL_Surface *surface);
 
 #endif
