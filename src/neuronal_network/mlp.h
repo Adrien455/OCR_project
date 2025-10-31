@@ -12,7 +12,7 @@ typedef struct {
 MLP *mlp_create(int in, int hid);
 void mlp_free(MLP *m);
 
-double mlp_forward(const MLP *m, const double *x, double *h_buf);
+double mlp_forward(const MLP *m, const double *x, double *h);
 void mlp_backward(MLP *m, const double *x, const double *h, double y, double t, double lr);
 
 #endif

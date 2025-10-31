@@ -61,7 +61,7 @@ OCR_Project/
 > solver : in parent folder run './main --solver ~/my_grid word_to_find'
 > example : './main --solver Tests/grid.txt EPITA'
 
-> mlp : in parent folder run : './main __mlp'
+> mlp : in parent folder run : './main --mlp'
 
 # Output
 
@@ -85,7 +85,7 @@ OCR_Project/
 
 > pre_process.c grayscales, denoises, binarizes.
 
-> mlp.c learn the logical function :  Ā.B̄ + A.B and prints the results
+> mlp.c learns the logical function :  Ā.B̄ + A.B and prints the results
 
 > rotate.c detects the angle of the text and rotates it to be horizontal.
 > can be done manually with an angle of 5 degrees (left or right).
@@ -94,7 +94,7 @@ OCR_Project/
 > It separates the grid the letters of the grid and the letters of the word.
 > they are ordered and indexed
 
-> solver take a grid and a word in parameters and check if the word is in the grid.
+> solver takes a grid and a word in parameters and checks if the word is in the grid.
 
 > main.c runs everything. The flags --mlp and --solver are used to distinguish the three programs.
 
@@ -106,7 +106,7 @@ OCR_Project/
 
 > implement character recognition algorithm.
 
-> for now solver takes only one word in parameters. It will later takes several words as once.
+> for now solver takes only one word in parameters. It will later takes several words at once.
 
 > link the three programs once done
 

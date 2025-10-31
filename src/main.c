@@ -14,29 +14,30 @@
 int run_mlp()
 {
     double X[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
-    double Y[4] = { 0, 0, 1, 1 };
-    int H = 3;
-    MLP *mlp = mlp_create(2, H);
+    double T[4] = { 1, 0, 0, 1 };
+    
+    MLP *mlp = mlp_create(2, 2);
+    double h[2];
+    double lr = 0.5;
 
-    for (int epoch = 0; epoch < 5000; ++epoch)
+    for (int epoch = 0; epoch < 10000; ++epoch)
     {
         double loss = 0.0;
-        for (int i = 0; i < 4; ++i)
+        for (int n = 0; n < 4; ++n)
         {
-            double h[H];
-            double y = mlp_forward(mlp, X[i], h);
-            loss += -(Y[i] * log(y + 1e-8) + (1.0 - Y[i]) * log(1.0 - y + 1e-8));
-            mlp_backward(mlp, X[i], h, y, Y[i], 0.1);
+            double y = mlp_forward(mlp, X[n], h);
+            double t = T[n];
+
+            loss += -(t * log(y + 1e-8) + (1.0 - t) * log(1.0 - y + 1e-8));
+            mlp_backward(mlp, X[n], h, y, t, lr);
         }
-        if (epoch % 500 == 0)
-            printf("epoch=%d loss=%.6f\n", epoch, loss);
+        if (epoch % 1000 == 0) printf("Epoch=%d loss=%.4f\n", epoch, loss / 4.0);
     }
 
     for (int i = 0; i < 4; ++i)
     {
-        double h[H];
         double y = mlp_forward(mlp, X[i], h);
-        printf("A=%.0f B=%.0f -> y=%.3f (target=%.0f)\n", X[i][0], X[i][1], y, Y[i]);
+        printf("A=%.0f B=%.0f -> y=%.3f (target=%.0f)\n", X[i][0], X[i][1], y, T[i]);
     }
 
     mlp_free(mlp);
