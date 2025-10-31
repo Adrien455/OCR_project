@@ -4,18 +4,14 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <math.h>
-#include <string.h>
 
 // headers
 #include "loader/loader.h"
-#include "pre_process/pre_process.h"
-#include "rotate/rotate.h"
-#include "segmentation/segmentation.h"
 #include "event_handler/event_handler.h"
 #include "neuronal_network/mlp.h"
 #include "solver/solver.h"
 
-static int run_mlp(void)
+int run_mlp()
 {
     double X[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
     double Y[4] = { 0, 0, 1, 1 };
@@ -47,7 +43,7 @@ static int run_mlp(void)
     return 0;
 }
 
-static int run_solver(const char *filename, char *word)
+int run_solver(const char *filename, char *word)
 {
     for (size_t i = 0; i < strlen(word); i++)
     {
@@ -100,43 +96,64 @@ static int run_solver(const char *filename, char *word)
 
 int main(int argc, char *argv[]) 
 {
-        if (argc > 1 && strcmp(argv[1], "--mlp") == 0)
+    if(argc > 4)
+    {
+        errx(EXIT_FAILURE, "too much arguments");
+    }
+
+    if (argc > 1 && strcmp(argv[1], "--mlp") == 0)
+    {
+        return run_mlp();
+    }
+
+    if (argc > 1 && strcmp(argv[1], "--solver") == 0)
+    {
+        if(argc >= 4)
         {
-                return run_mlp();
+            return run_solver(argv[2], argv[3]);
         }
-
-        if (argc > 2 && strcmp(argv[1], "--solver") == 0)
+        else
         {
-                return run_solver(argv[2], argv[3]);
+            errx(EXIT_FAILURE, "solver needs a file to process and a word to find");
         }
+    }
 
-        if (SDL_Init(SDL_INIT_VIDEO) != 0)
-        {
-                errx(EXIT_FAILURE, "%s", SDL_GetError());
-        }
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        errx(EXIT_FAILURE, "%s", SDL_GetError());
+    }
 
-        SDL_Renderer *renderer = NULL;
-        SDL_Window *window = NULL;
-        SDL_Texture *texture = NULL;
+    SDL_Renderer *renderer = NULL;
+    SDL_Window *window = NULL;
+    SDL_Texture *texture = NULL;
+    SDL_Surface *surface = NULL;
 
-        char* file = NULL;
-        if (argc >1)
-        {
-                file = argv[1];
+    char* file = NULL;
+    if (argc >1)
+    {
+        file = argv[1];
 
-        }
+    }
 
-        initialize(&window, &renderer, &texture, file);
+    initialize(&window, &renderer, &texture, file, &surface);
 
-        int running = 1;
+    int running = 1;
+    int steps = 0;
+    int av_gray = 0;
 
-        while (running)
-        {
-        running = event_handler();
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-        }
+    printf("Press enter key to begin process\n");
+    fflush(stdout);
 
-        terminate(window, renderer, texture);
-        return EXIT_SUCCESS;
+    while (running)
+    {
+    running = event_handler(renderer, &texture, &surface, &steps, &av_gray, file);
+
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+    }
+
+    SDL_FreeSurface(surface);
+    terminate(window, renderer, texture);
+    return EXIT_SUCCESS;
 }

@@ -60,12 +60,12 @@ void flood_fill(SDL_Surface* surface, int start_x, int start_y, Uint32 visited_c
     free(stack);
 }
 
-SDL_Surface* crop_surface(SDL_Surface* src, SDL_Rect bbox)
+SDL_Surface* crop_surface(SDL_Surface* surface, SDL_Rect bbox)
 {
-    SDL_Surface* dst = SDL_CreateRGBSurfaceWithFormat(0, bbox.w, bbox.h, src -> format -> BitsPerPixel, src -> format -> format);
-    SDL_BlitSurface(src, &bbox, dst, NULL);     // copy bbox from src to dst
+    SDL_Surface* cropped = SDL_CreateRGBSurfaceWithFormat(0, bbox.w, bbox.h, surface -> format -> BitsPerPixel, surface -> format -> format);
+    SDL_BlitSurface(surface, &bbox, cropped, NULL);     // copy bbox from src to dst
 
-    return dst;
+    return cropped;
 }
 
 LetterBox* extract_letters(SDL_Surface* surface, int* out_count, LetterBox* grid_box)
@@ -74,7 +74,7 @@ LetterBox* extract_letters(SDL_Surface* surface, int* out_count, LetterBox* grid
     int count = 0;              // tracker to reallocate
 
     LetterBox* boxes = malloc(capacity * sizeof(LetterBox));                // dynamic array of letter boxes
-    Uint32 visited_color = SDL_MapRGBA(surface->format, 255, 0, 0, 255);    // arbitrary visited color (red)
+    Uint32 visited_color = SDL_MapRGBA(surface -> format, 255, 0, 0, 255);    // arbitrary visited color (red)
 
     int w = surface -> w;       // pixels per row
     int h = surface -> h;       // n of rows
@@ -130,19 +130,24 @@ LetterBox* extract_letters(SDL_Surface* surface, int* out_count, LetterBox* grid
     return boxes;
 }
 
-int compare_letters(const void* a, const void* b) 
+int compare_letters(const void* a, const void* b)   // VERY IMPORTANT 
 {
     const LetterBox* A = a;
     const LetterBox* B = b;
 
-    if (abs(A -> y - B -> y) < 10)
+    if (abs(A -> y - B -> y) > 4) // delta y
     {
-        return A -> x - B -> x; // sort left to right if on the same line
+        return A -> y - B -> y; // top to bottom
     }
-    else
+    else if (abs(A -> h - B -> h) > 3) // delta h
     {
-        return A -> y - B -> y; // otherwise, sort top to bottom
+        return A -> y - B -> y; // top to bottom
     }
+    else 
+    {
+        return A -> x - B -> x; // left to right
+    }
+    
 }
 
 int is_part_of_grid(LetterBox grid_box, LetterBox letter_box) 
@@ -170,7 +175,7 @@ void save_letters(SDL_Surface* surface, char* file) {
     LetterBox* letters = extract_letters(surface, &n_letters, &grid_box);
     qsort(letters, n_letters, sizeof(LetterBox), compare_letters);
 
-    printf("Detected %d letters\n", n_letters);
+    printf("Detected %d letters\n", n_letters - 1);
 
     const char* dot = strrchr(file, '.');
     const char* slash = strrchr(file, '/');
@@ -180,6 +185,9 @@ void save_letters(SDL_Surface* surface, char* file) {
     int count_outside_grid = 0;
 
     int count_words = 0;
+
+    int prev_x = 0;
+    int prev_y = 0;
 
     for(int i = 0; i < n_letters; i++)
     {
@@ -198,10 +206,11 @@ void save_letters(SDL_Surface* surface, char* file) {
             continue;
         }
 
-        printf("Letter %d: x=%d, y=%d, w=%d, h=%d\n", i, letters[i].x, letters[i].y, letters[i].w, letters[i].h);
-
         if(is_part_of_grid(grid_box, letters[i])) 
         {
+            printf("Letter %d: x=%d, y=%d, w=%d, h=%d\n", count_in_grid, letters[i].x, letters[i].y, letters[i].w, letters[i].h);
+            count_in_grid++;
+
             snprintf(filename, sizeof(filename), "datasets/%.*s/grid_letters/letter[%d].bmp", (int)(dot - start), start, count_in_grid);
 
             if(SDL_SaveBMP(letters[i].surface, filename) != 0) 
@@ -209,7 +218,6 @@ void save_letters(SDL_Surface* surface, char* file) {
                 printf("Failed to save %s: %s\n", filename, SDL_GetError());
             }
 
-            count_in_grid++;
             count_outside_grid = 0;
         }
         else 
@@ -218,6 +226,14 @@ void save_letters(SDL_Surface* surface, char* file) {
             {
                 count_words++;
             }
+            else if(abs(letters[i].x - prev_x) > 50 || abs(letters[i].y - prev_y) > 10)     // word on same line or very small words
+            {
+                count_words++;
+                count_outside_grid = 0;
+            }
+
+            printf("Word[%d], Letter %d: x=%d, y=%d, w=%d, h=%d\n", count_words, count_outside_grid, letters[i].x, letters[i].y, letters[i].w, letters[i].h);
+            count_outside_grid++;
 
             snprintf(filename, sizeof(filename), "datasets/%.*s/words_letters/word[%d]_letter[%d].bmp", (int)(dot - start), start, count_words, count_outside_grid);
 
@@ -226,7 +242,8 @@ void save_letters(SDL_Surface* surface, char* file) {
                 printf("Failed to save %s: %s\n", filename, SDL_GetError());
             }
 
-            count_outside_grid++;
+            prev_x = letters[i].x;
+            prev_y = letters[i].y;
         }
     }
 

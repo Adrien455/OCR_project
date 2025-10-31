@@ -4,33 +4,6 @@
 #include <SDL2/SDL.h>
 #include "pre_process.h"
 
-float contrastFactor(float averageBrightness)
-{
-	float factor = 1.5f;
-
-	if (averageBrightness < 100) factor = 1.8f;		    // dark image
-	else if (averageBrightness > 180) factor = 1.2f;	// bright image
-
-	return factor;
-}
-
-Uint8 computeAverageGray(SDL_Surface *surface)
-{
-	Uint8 r, g, b;
-	Uint32* pixels = (Uint32*)surface -> pixels;
-	int count = surface -> w * surface -> h;
-	long sum = 0;
-
-	for (int i = 0; i < count; i++) 
-	{
-        SDL_GetRGB(pixels[i], surface -> format, &r, &g, &b);
-        Uint8 gray = (Uint8)(0.299 * r + 0.587 * g + 0.114 * b);
-		sum += gray;
-	}
-
-	return (Uint8)(sum / count);
-}
-
 void to_gray_scale(SDL_Surface *surface, int *av_gray)
 {
         Uint8 r, g, b;
@@ -75,26 +48,6 @@ void binarize(SDL_Surface *surface, int av_gray)
                 Uint8 value = (r > av_gray) ? 255 : 0;
                 pixels[y * pitch + x] = SDL_MapRGB(surface -> format, value, value, value);
             }
-        }
-}
-
-void increaseContrast(SDL_Surface *surface)
-{
-	float factor = contrastFactor(computeAverageGray(surface));
-
-        Uint8 r, g, b;
-        Uint32* pixels = (Uint32*)surface -> pixels;
-        int count = surface -> w * surface -> h;
-
-        for (int i = 0; i < count; i++)
-        {
-                SDL_GetRGB(pixels[i], surface -> format, &r, &g, &b);
-
-                r = (Uint8) fmin(fmax((r - 128) * factor + 128, 0), 255);
-                g = (Uint8) fmin(fmax((g - 128) * factor + 128, 0), 255);
-                b = (Uint8) fmin(fmax((b - 128) * factor + 128, 0), 255);
-
-                pixels[i] = SDL_MapRGB(surface->format, r, g, b);
         }
 }
 
