@@ -70,41 +70,71 @@ double compute_skew_angle(SDL_Surface* surface)
     double best_angle = 0.0;
     double best_score = -1.0;
 
-    for (double a = -30.0; a <= 30.0; a += 0.5) 
+    double coarse_best = 0.0;
+    double coarse_score_best = -1.0;
+
+    for (double a = -30.0; a <= 30.0; a += 2.0)
     {
         double s = sin(a * M_PI / 180.0);
         double c = cos(a * M_PI / 180.0);
-        int proj[1500] = {0};       // 600 * 800 dims
-        int bias = w / 2;
 
-        for (int y = 0; y < h; y += 2) 
+        int proj[3000] = {0};
+
+        for (int y = 0; y < h; y++)
         {
-            const Uint32* row = pixels + y * pitch;
+            for (int x = 0; x < w; x++)
+            {            
+                Uint8 r, g, b;
+                SDL_GetRGB(pixels[y * pitch + x], surface->format, &r, &g, &b);
 
-            for (int x = 0; x < w; x += 2) 
-            {
-                Uint8 r = (row[x] >> 24) & 0xFF;
-
-                if (r < 128) 
+                if (r != 255)
                 {
-                    int yr = (int)(x * s + y * c) + bias;
-
-                    if ((unsigned)yr < 1500U) 
-                    {
+                    int yr = (int)(x * s + y * c) + 1500;
+                    if ((unsigned)yr < 3000)
                         proj[yr]++;
-                    }
                 }
             }
         }
 
         double score = 0.0;
-
-        for (int i = 0; i < 1500; ++i)
-        {
+        for (int i = 0; i < 3000; i++)
             score += (double)proj[i] * (double)proj[i];
+
+        if (score > coarse_score_best)
+        {
+            coarse_score_best = score;
+            coarse_best = a;
+        }
+    }
+
+    for (double a = coarse_best - 2.0; a <= coarse_best + 2.0; a += 0.1)
+    {
+        double s = sin(a * M_PI / 180.0);
+        double c = cos(a * M_PI / 180.0);
+
+        int proj[3000] = {0};
+
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                Uint8 r, g, b;
+                SDL_GetRGB(pixels[y * pitch + x], surface->format, &r, &g, &b);
+    
+                if (r != 255)
+                {
+                    int yr = (int)(x * s + y * c) + 1500;
+                    if ((unsigned)yr < 3000)
+                        proj[yr]++;
+                }
+            }
         }
 
-        if (score > best_score) 
+        double score = 0.0;
+        for (int i = 0; i < 3000; i++)
+            score += (double)proj[i] * (double)proj[i];
+
+        if (score > best_score)
         {
             best_score = score;
             best_angle = a;
@@ -114,11 +144,10 @@ double compute_skew_angle(SDL_Surface* surface)
     return best_angle;
 }
 
-       
-
 SDL_Surface* rotate(SDL_Surface* surface) 
 {
     double angle = compute_skew_angle(surface);
+    fflush(stdout);
 
     if (fabs(angle) < 0.2) 
     {
@@ -128,7 +157,7 @@ SDL_Surface* rotate(SDL_Surface* surface)
 
     printf("Detected skew angle: %.2f degrees\n", angle);
 
-    SDL_Surface *rotated = rotozoomSurface(surface, angle);
+    SDL_Surface *rotated = rotozoomSurface(surface, round(angle));
 
     return rotated;
 }

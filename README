@@ -100,15 +100,15 @@ OCR_Project/
 
 # Work in progress
 
-> sometimes the grayscale function will add gray pixels between letters that are very close, which will be turned black later.
-> the letters will be merged as one in the segmentation.
-> enhancing the average gray computing may solve the issue, by computing the average of small areas, not whole image.
+> binarize functino is merging letters that are very close (usually letters from words) needs to fix this
 
 > implement character recognition algorithm.
 
 > for now solver takes only one word in parameters. It will later takes several words at once.
 
 > link the three programs once done
+
+> implement a prettier GUI
 
 # Collaborators
 
