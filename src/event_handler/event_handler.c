@@ -10,7 +10,7 @@
 #include "../rotate/rotate.h"
 #include "../segmentation/segmentation.h"
 
-int event_handler(SDL_Renderer *renderer, SDL_Texture **texture, SDL_Surface **surface, int *steps, int *av_gray, char *file) 
+int event_handler(SDL_Renderer *renderer, SDL_Texture **texture, SDL_Surface **surface, int *steps, int *hist, char *file) 
 {
 	SDL_Event event;
 
@@ -34,9 +34,7 @@ int event_handler(SDL_Renderer *renderer, SDL_Texture **texture, SDL_Surface **s
 
 				case 0:
 
-					int gray = 0;
-					to_gray_scale(*surface, &gray);
-					*av_gray = gray;
+					to_gray_scale(*surface, hist);
 
 					printf("Grayscale Done\n");
 					fflush(stdout);
@@ -54,7 +52,7 @@ int event_handler(SDL_Renderer *renderer, SDL_Texture **texture, SDL_Surface **s
 
 				case 2:
 
-					binarize(*surface, *av_gray);
+					binarize(*surface, hist);
 
 					printf("Binarize Done\n");
 					fflush(stdout);
@@ -74,7 +72,7 @@ int event_handler(SDL_Renderer *renderer, SDL_Texture **texture, SDL_Surface **s
 					
 					SDL_Surface *copy = SDL_ConvertSurfaceFormat(*surface, SDL_PIXELFORMAT_RGBA8888, 0);
 
-					save_letters(copy, file);
+					save_letters(copy, *surface, file);
 					SDL_FreeSurface(copy);
 					
 					printf("Segmentation Done\n");

@@ -4,51 +4,94 @@
 #include <SDL2/SDL.h>
 #include "pre_process.h"
 
-void to_gray_scale(SDL_Surface *surface, int *av_gray)
+void to_gray_scale(SDL_Surface *surface, int *hist)
 {
-        Uint8 r, g, b;
-        Uint32* pixels = (Uint32*)surface -> pixels;
+    Uint8 r, g, b;
+    Uint32* pixels = (Uint32*)surface -> pixels;
 
-        int w = surface -> w;
-        int h = surface -> h;
+    int w = surface -> w;
+    int h = surface -> h;
 
-        long sum = 0;
+    int pitch = surface -> pitch / 4;
 
-        int pitch = surface -> pitch / 4;
-
-        for (int y = 0; y < h; y++)
+    for (int y = 0; y < h; y++)
+    {
+        for (int x = 0; x < w; x++)
         {
-            for (int x = 0; x < w; x++)
-            {
-                SDL_GetRGB(pixels[y * pitch + x], surface -> format, &r, &g, &b);
-                Uint8 gray = (Uint8)(0.299 * r + 0.587 * g + 0.114 * b);
-                pixels[y * pitch + x] = SDL_MapRGB(surface -> format, gray, gray, gray);
-                sum += gray;
-            }
+            SDL_GetRGB(pixels[y * pitch + x], surface -> format, &r, &g, &b);
+            Uint8 gray = (Uint8)(0.299 * r + 0.587 * g + 0.114 * b);
+            pixels[y * pitch + x] = SDL_MapRGB(surface -> format, gray, gray, gray);
+            hist[gray]++;
         }
-
-        *av_gray = (int)(sum / (w * h));
+    }
 }
 
-void binarize(SDL_Surface *surface, int av_gray)
+int Otsus_threshold(int *hist, int total)
 {
-        Uint8 r, g, b;
-        Uint32* pixels = (Uint32*)surface -> pixels;
-        
-        int w = surface -> w;
-        int h = surface -> h;
+    double sum = 0.0;       // Find otsu's threshold
+    
+    for (int t = 0; t < 256; t++)
+    {
+        sum += t * hist[t];
+    }
 
-        int pitch = surface -> pitch / 4;
+    double sumB = 0.0;
 
-        for (int y = 0; y < h; y++)
+    int wB = 0;
+    int wF = 0;
+
+    double maxVar = 0.0;
+    int threshold = 0;
+
+    for (int t = 0; t < 256; t++)
+    {
+        wB += hist[t];
+        if (wB == 0) continue;
+
+        wF = total - wB;
+        if (wF == 0) break;
+
+        sumB += (double)(t * hist[t]);
+
+        double mB = sumB / wB;
+        double mF = (sum - sumB) / wF;
+
+        double varBetween = (double)wB * (double)wF * (mB - mF) * (mB - mF);
+
+        if (varBetween > maxVar)
         {
-            for (int x = 0; x < w; x++)
-            {
-                SDL_GetRGB(pixels[y * pitch + x], surface -> format, &r, &g, &b);
-                Uint8 value = (r > av_gray) ? 255 : 0;
-                pixels[y * pitch + x] = SDL_MapRGB(surface -> format, value, value, value);
-            }
+            maxVar = varBetween;
+            threshold = t;
         }
+    }
+
+    return threshold;
+}
+
+void binarize(SDL_Surface *surface, int *hist)
+{
+    Uint8 r, g, b;
+    Uint32* pixels = (Uint32*)surface -> pixels;
+        
+    int w = surface -> w;
+    int h = surface -> h;
+
+    int pitch = surface -> pitch / 4;
+
+    int threshold = Otsus_threshold(hist, w * h);
+
+    for (int y = 0; y < h; y++)
+    {
+        for (int x = 0; x < w; x++)
+        {
+            SDL_GetRGB(pixels[y * pitch + x], surface->format, &r, &g, &b);
+
+            r = r * r / 255;    // boost contrast
+
+            Uint8 value = (r > threshold) ? 255 : 0;
+            pixels[y * pitch + x] = SDL_MapRGB(surface->format, value, value, value);
+        }
+    }
 }
 
 int check_line(Uint32* pixels, SDL_PixelFormat* format, int x, int y, int pitch) // check if pixel at (x,y) is part of a line (horizontal or vertical)
@@ -69,6 +112,7 @@ int check_line(Uint32* pixels, SDL_PixelFormat* format, int x, int y, int pitch)
 
     return 0;
 }
+
 
 void denoise(SDL_Surface* surface)  // simple denoise function using median filter, will compare the 3x3 neighborhood and take the median value
 {

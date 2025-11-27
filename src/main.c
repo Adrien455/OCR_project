@@ -87,7 +87,8 @@ int run_solver(const char *filename, char *word)
     }
     else
     {
-        printf("(%d,%d),(%d,%d)\n", sol.startCol, sol.startRow, sol.endCol, sol.endRow);
+        printf("(%d,%d),(%d,%d)\n\n", sol.startCol, sol.startRow, sol.endCol, sol.endRow);
+        printf("Grid with the word highlighted in red:\n");
         printGridWithWord(grid, rows, cols, sol, word);
     }
 
@@ -129,27 +130,26 @@ int main(int argc, char *argv[])
     SDL_Texture *texture = NULL;
     SDL_Surface *surface = NULL;
 
-    char* file = NULL;
-    if (argc >1)
+    if (argc < 2)
     {
-        file = argv[1];
-
+        errx(EXIT_FAILURE, "A crossword image is needed to run the program");
     }
+
+    char* file = argv[1];
 
     initialize(&window, &renderer, &texture, file, &surface);
 
     int running = 1;
     int steps = 0;
-    int av_gray = 0;
+    int hist[256] = {0};
 
     printf("Press enter key to begin process\n");
     fflush(stdout);
 
     while (running)
     {
-    running = event_handler(renderer, &texture, &surface, &steps, &av_gray, file);
+    running = event_handler(renderer, &texture, &surface, &steps, hist, file);
 
-    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
     }
